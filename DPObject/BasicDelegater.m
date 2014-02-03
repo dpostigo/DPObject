@@ -24,7 +24,9 @@
 }
 
 - (void) subscribeDelegate: (id) aDelegate {
-    [self.delegates addObject: aDelegate];
+    if (![self.delegates containsObject: aDelegate]) {
+        [self.delegates addObject: aDelegate];
+    }
 }
 
 - (void) unsubscribeDelegate: (id) aDelegate {
