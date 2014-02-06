@@ -39,9 +39,14 @@
 }
 
 - (void) notifyDelegates: (SEL) aSelector object: (id) obj object: (id) obj2 {
+    [self notifyDelegates: aSelector object: obj object: obj2 object: nil];
+
+}
+
+- (void) notifyDelegates: (SEL) aSelector object: (id) obj object: (id) obj2 object: (id) object3 {
     NSArray *array = [NSArray arrayWithArray: self.delegates];
     for (id delegate in array) {
-        [self forwardSelector: aSelector delegate: delegate object: obj object: obj2];
+        [self forwardSelector: aSelector delegate: delegate object: obj object: obj2 object: object3];
     }
 }
 

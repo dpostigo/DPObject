@@ -19,4 +19,5 @@
 
 - (void) notifyDelegates: (SEL) aSelector object: (id) obj;
 - (void) notifyDelegates: (SEL) aSelector object: (id) obj object: (id) obj2;
+- (void) notifyDelegates: (SEL) aSelector object: (id) obj object: (id) obj2 object: (id) object3;
 @end
