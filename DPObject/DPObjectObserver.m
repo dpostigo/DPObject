@@ -74,7 +74,13 @@ static char DPObjectObserverContext;
         NSArray *keys = [self.objectKeys objectAtIndex: index];
 
         for (NSString *key in keys) {
-            [object removeObserver: self forKeyPath: key context: &DPObjectObserverContext];
+
+            @try {
+                [object removeObserver: self forKeyPath: key context: &DPObjectObserverContext];
+            } @catch (NSException *exception) {
+                //                NSLog(@"Caught exception.");
+            }
+
         }
 
         [self.objects removeObject: object];
@@ -110,7 +116,6 @@ static char DPObjectObserverContext;
 
 - (void) observeValueForKeyPath: (NSString *) keyPath ofObject: (id) object change: (NSDictionary *) change context: (void *) context {
     if (context == &DPObjectObserverContext) {
-
         NSString *property = keyPath;
         id oldValue = [change objectForKey: NSKeyValueChangeOldKey];
         id newValue = [change objectForKey: NSKeyValueChangeNewKey];
@@ -128,31 +133,44 @@ static char DPObjectObserverContext;
             oldValue = [oldValue objectAtIndex: 0];
         }
 
+        NSString *classTypeString = [NSStringFromClass([object class]) decapitalize];
+        NSString *propertyString = [property capitalizedSentence];
+
         if (kind == NSKeyValueChangeSetting) {
             id secondObject = isPriorNotification ? nil : newValue;
 
             NSString *format = [@"%@" stringByAppendingString: (isPriorNotification ? @"WillUpdate:withProperty:" : @"DidReset%@:with:")];
-            NSString *classTypeString = [NSStringFromClass([object class]) decapitalize];
 
             if (isPriorNotification) {
                 format = @"%@WillUpdate:forProperty:";
                 [self notifyDelegates: NSSelectorFromString([NSString stringWithFormat: format, @"object"]) object: object object: property];
                 [self notifyDelegates: NSSelectorFromString([NSString stringWithFormat: format, classTypeString]) object: object object: property];
+                [self notifyDelegates: NSSelectorFromString([NSString stringWithFormat: @"%@WillUpdate%@", classTypeString, propertyString]) object: object object: nil];
 
             } else {
                 format = @"%@DidUpdate:withObject:forProperty:";
-                NSString *didTypedParameterSelector = [NSString stringWithFormat: @"%@DidUpdate:with%@:", classTypeString, [property capitalizedSentence]];
+                NSString *didTypedParameterSelector = [NSString stringWithFormat: @"%@DidUpdate:with%@:", classTypeString, propertyString];
                 [self notifyDelegates: NSSelectorFromString([NSString stringWithFormat: format, @"object"]) object: object object: secondObject object: property];
                 [self notifyDelegates: NSSelectorFromString([NSString stringWithFormat: format, classTypeString]) object: object object: secondObject object: property];
                 [self notifyDelegates: NSSelectorFromString(didTypedParameterSelector) object: object object: secondObject];
             }
-            //            NSString *changeKind = [self stringForKeyValueChange: kind];
+
             //            NSLog(@"changeKind = %@, selector = %@, firstObject = %@, secondObject = %@", changeKind, NSStringFromSelector(selector), firstObject, secondObject);
 
+        } else {
+
+            NSString *changeKind = [self stringForKeyValueChange: kind];
+            NSLog(@"changeKind = %@, classTypeString = %@, propertyString = %@", changeKind, classTypeString, propertyString);
         }
     } else {
         [super observeValueForKeyPath: keyPath ofObject: object change: change context: context];
     }
+}
+
+
+- (void) notifyDelegates: (SEL) aSelector object: (id) obj object: (id) obj2 object: (id) object3 {
+    [super notifyDelegates: aSelector object: obj object: obj2 object: object3];
+    //    NSLog(@"%s, aSelector = %@", __PRETTY_FUNCTION__, NSStringFromSelector(aSelector));
 }
 
 
