@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name         = "DPObject"
-  s.version      = "0.0.4"
+  s.version      = "0.0.5"
   s.summary      = "Basic objects."
   s.homepage     = "http://dpostigo.com"
   s.license      = 'BSD'
@@ -15,7 +15,7 @@ Pod::Spec.new do |s|
   s.ios.deployment_target = '4.3'
   s.osx.deployment_target = '10.8'
 
-  s.dependency   'DPKit'
+  s.dependency   'DPKit-Utils'
 
   s.frameworks   = 'QuartzCore'
   
